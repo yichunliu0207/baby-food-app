@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baby Food App</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { font-family: "Noto Sans TC", sans-serif; background:#faf6ef; margin:0; padding:0; }
+    h2,h3 { text-align:center; color:#5a4d3a; }
+    .hidden { display:none; }
+    #calendar div { width:14.28%; display:inline-block; text-align:center; padding:10px 0; box-sizing:border-box; border:1px solid #ddd; margin-bottom:-1px; margin-right:-1px; cursor:pointer; }
+    .hasRecord { background-color:#f7d6a0; }
+    button { background-color:#f4b183; color:white; border:none; padding:10px 20px; margin:5px; border-radius:5px; cursor:pointer; }
+    input,select { padding:5px; margin:5px 0; width:100%; box-sizing:border-box; }
+    #addPage,#loginPage { max-width:400px; margin:0 auto; }
+  </style>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- 登入頁 -->
+  <div id="loginPage">
+    <h2>Baby Food App 登入</h2>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="密碼" />
+    <button id="loginBtn">登入 / 註冊</button>
+  </div>
+
+  <!-- 主頁日曆 -->
+  <div id="mainPage" class="hidden">
+    <h2>寶寶副食品紀錄</h2>
+    <button id="addBtn">新增紀錄</button>
+    <button id="logoutBtn">登出</button>
+    <h3 id="currentMonth"></h3>
+    <div id="calendar"></div>
+  </div>
+
+  <!-- 新增紀錄頁 -->
+  <div id="addPage" class="hidden">
+    <h2>新增副食品紀錄</h2>
+    <label>日期</label>
+    <input type="date" id="foodDate" />
+    <label>分類</label>
+    <select id="foodCategory">
+      <option>蔬菜</option>
+      <option>水果</option>
+      <option>蛋白質</option>
+      <option>其他</option>
+    </select>
+    <label>食物型態</label>
+    <select id="foodTexture">
+      <option>泥狀</option>
+      <option>碎狀</option>
+      <option>條狀</option>
+    </select>
+    <label>過敏反應</label>
+    <input type="text" id="foodAllergy" placeholder="如紅疹、嘔吐" />
+    <label>喜歡程度 (1-5)</label>
+    <input type="number" id="foodRating" min="1" max="5" />
+    <button id="saveBtn">儲存</button>
+    <button id="cancelAddBtn">取消</button>
+  </div>
+
+  <!-- App JS -->
+  <script src="app.js"></script>
+</body>
+</html>
