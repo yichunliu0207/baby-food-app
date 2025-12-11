@@ -77,7 +77,7 @@ async function renderCalendar() {
 
   for (let d = 1; d <= totalDays; d++) {
     const cell = document.createElement('div');
-    const dateStr = `${stateYear}-${String(stateMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dateStr = `${stateYear}-${String(stateMonth + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dateNum = document.createElement('div'); dateNum.className = 'date-num'; dateNum.innerText = d;
     cell.appendChild(dateNum);
 
