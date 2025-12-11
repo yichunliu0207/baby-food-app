@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Food App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="login-container" class="centered">
+        <h2>登入</h2>
+        <input type="password" id="password-input" placeholder="請輸入密碼">
+        <button id="login-btn">登入</button>
+        <p id="login-error" class="error-message"></p>
+    </div>
+
+    <div id="app" style="display:none;">
+        <header>
+            <h1>寶寶副食品紀錄</h1>
+        </header>
+
+        <section id="form-section">
+            <h2>新增紀錄</h2>
+            <input type="date" id="date-input">
+            <input type="text" id="food-input" placeholder="食物名稱">
+            <textarea id="note-input" placeholder="備註"></textarea>
+            <button id="add-btn">新增</button>
+        </section>
+
+        <section id="list-section">
+            <h2>紀錄列表</h2>
+            <ul id="record-list"></ul>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
