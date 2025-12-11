@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>寶寶副食品日誌</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="plant">🌿</div>
+
+  <!-- LOGIN PAGE -->
+  <main id="loginPage" class="page active">
+    <section class="card login-card">
+      <h1 class="title">寶寶副食品日誌</h1>
+      <p class="subtitle">請輸入密碼以進入日曆</p>
+
+      <input id="loginPassword" type="password" placeholder="請輸入密碼" aria-label="password" />
+      <button id="loginBtn" class="btn">登入</button>
+      <p id="loginError" class="txt-error hidden">密碼錯誤，請重新輸入</p>
+      <p class="hint">風格：簡約 INS 白色系 · 可在手機與桌面使用</p>
+    </section>
+  </main>
+
+  <!-- CALENDAR PAGE -->
+  <main id="calendarPage" class="page">
+    <header class="calendar-header card">
+      <button id="prevMonth" class="icon-btn" aria-label="prev month">‹</button>
+      <div>
+        <div id="monthYear" class="month-year">2025 年 12 月</div>
+        <div class="small-muted">點選日期以編輯 / 查看當日紀錄</div>
+      </div>
+      <button id="nextMonth" class="icon-btn" aria-label="next month">›</button>
+    </header>
+
+    <section class="card calendar-card">
+      <div class="weekdays">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+
+      <div id="calendarGrid" class="calendar-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <!-- DETAIL PAGE -->
+  <main id="detailPage" class="page">
+    <section class="card detail-card">
+      <div class="detail-top">
+        <button id="backBtn" class="ghost-btn">← 回上頁</button>
+        <h2 id="detailDate" class="detail-date">2025-12-01</h2>
+      </div>
+
+      <div class="form-row">
+        <label class="label">寶寶吃的副食品</label>
+        <input id="foodInput" type="text" placeholder="輸入食物名稱（例如：地瓜泥）" />
+      </div>
+
+      <div class="form-row checkbox-row">
+        <label><input id="allergyCheck" type="checkbox" /> 是否過敏</label>
+      </div>
+
+      <div class="form-row actions-row">
+        <button id="addFoodBtn" class="btn">新增到當日</button>
+        <button id="clearInputBtn" class="ghost-btn">清空</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="small-muted">當日紀錄</h3>
+      <ul id="foodList" class="food-list" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <!-- Link JS at the end -->
+  <script src="app.js"></script>
+</body>
+</html>
