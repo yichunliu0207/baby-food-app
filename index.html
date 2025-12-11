@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>寶寶副食品日誌</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.17.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.17.1/firebase-firestore.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
+      authDomain: "babyfoodapp-3422a.firebaseapp.com",
+      projectId: "babyfoodapp-3422a",
+      storageBucket: "babyfoodapp-3422a.firebasestorage.app",
+      messagingSenderId: "40274639672",
+      appId: "1:40274639672:web:fba3f7b56a558b24e51fcd",
+      measurementId: "G-L2815BV781"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.firebaseDB = db;
+  </script>
+</head>
+<body>
+  <div class="plant">🌿</div>
+
+  <!-- LOGIN PAGE -->
+  <main id="loginPage" class="page active">
+    <section class="card login-card">
+      <h1 class="title">寶寶副食品日誌</h1>
+      <p class="subtitle">請輸入密碼以進入日曆</p>
+      <input id="loginPassword" type="password" placeholder="請輸入密碼" />
+      <button id="loginBtn" class="btn">登入</button>
+      <p id="loginError" class="txt-error hidden">密碼錯誤，請重新輸入</p>
+    </section>
+  </main>
+
+  <!-- CALENDAR PAGE -->
+  <main id="calendarPage" class="page">
+    <header class="calendar-header card">
+      <button id="prevMonth" class="icon-btn">‹</button>
+      <div>
+        <div id="monthYear" class="month-year">2025 年 12 月</div>
+        <div class="small-muted">點選日期以編輯 / 查看當日紀錄</div>
+      </div>
+      <button id="nextMonth" class="icon-btn">›</button>
+    </header>
+
+    <section class="card calendar-card">
+      <div class="weekdays">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+    </section>
+  </main>
+
+  <!-- DETAIL PAGE -->
+  <main id="detailPage" class="page">
+    <section class="card detail-card">
+      <div class="detail-top">
+        <button id="backBtn" class="ghost-btn">← 回上頁</button>
+        <h2 id="detailDate" class="detail-date"></h2>
+      </div>
+
+      <div class="form-row">
+        <label>寶寶吃的副食品</label>
+        <input id="foodInput" type="text" placeholder="輸入食物名稱（例如：地瓜泥）" />
+      </div>
+
+      <div class="form-row checkbox-row">
+        <label><input id="allergyCheck" type="checkbox" /> 是否過敏</label>
+      </div>
+
+      <div class="form-row actions-row">
+        <button id="addFoodBtn" class="btn">新增到當日</button>
+        <button id="clearInputBtn" class="ghost-btn">清空</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="small-muted">當日紀錄</h3>
+      <ul id="foodList" class="food-list"></ul>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
