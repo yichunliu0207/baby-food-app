@@ -176,7 +176,12 @@ clearInputBtn.addEventListener('click', ()=>{
 });
 
 // 回日曆
-backBtn.addEventListener('click', ()=> showPage(calendarPage));
+// back 按鈕
+backBtn.addEventListener('click', ()=> { 
+  showPage(calendarPage); 
+  renderCalendar();  // 回上頁時重新渲染日曆，立即顯示最新副食品
+});
+
 
 // 初始頁面
 showPage(loginPage);
