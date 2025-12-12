@@ -15,11 +15,11 @@ html, body {
 
 /* ======================== 頁面控制 ======================== */
 .page {
-  display: none; /* 預設隱藏所有頁面 */
+  display: none;
 }
 
 .page.active {
-  display: block; /* 只有 active 的頁面顯示 */
+  display: block;
 }
 
 /* ======================== 登入頁 ======================== */
@@ -127,7 +127,6 @@ html, body {
   color: red;
 }
 
-/* 空白格 */
 .calendar-grid .empty {
   border: none;
   background: transparent;
