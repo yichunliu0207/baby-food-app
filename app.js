@@ -1,4 +1,4 @@
-// Firebase init
+// Firebase 初始化
 const firebaseConfig = {
   apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
   authDomain: "babyfoodapp-3422a.firebaseapp.com",
@@ -34,27 +34,28 @@ const foodList = document.getElementById('foodList');
 const backBtn = document.getElementById('backBtn');
 
 const FIXED_PASSWORD = '0808';
-let stateYear = 2025;
-let stateMonth = 11;
-let currentDetailDate = '';
 
-// 顯示頁面
+let stateYear = 2025;
+let stateMonth = 11; // December
+let currentDetailDate = '';
+let currentDetailUnsub = null;
+
 function showPage(pageEl){
-  [loginPage, calendarPage, detailPage].forEach(p=>p.classList.remove('active'));
+  [loginPage, calendarPage, detailPage].forEach(p => p.classList.remove('active'));
   pageEl.classList.add('active');
 }
 
-// 日期格式化
 function formatDateStr(y,m,d){
   return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
 
-// uid
-function uid(){ return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function uid(){
+  return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
 
 // 登入
 loginBtn.addEventListener('click', ()=>{
-  const pw = (loginPassword.value||'').trim();
+  const pw = (loginPassword.value || '').trim();
   if(pw === FIXED_PASSWORD){
     loginError.classList.add('hidden');
     alert('登入成功');
@@ -64,15 +65,16 @@ loginBtn.addEventListener('click', ()=>{
     loginError.classList.remove('hidden');
   }
 });
-loginPassword.addEventListener('keydown', e=>{ if(e.key==='Enter') loginBtn.click(); });
+loginPassword.addEventListener('keydown', (e)=>{ if(e.key==='Enter') loginBtn.click(); });
 
 // 月份切換
 prevMonth.addEventListener('click', ()=> changeMonth(-1));
 nextMonth.addEventListener('click', ()=> changeMonth(1));
+
 function changeMonth(delta){
   stateMonth += delta;
-  if(stateMonth<0){ stateMonth=11; stateYear--; }
-  if(stateMonth>11){ stateMonth=0; stateYear++; }
+  if(stateMonth < 0){ stateMonth = 11; stateYear -= 1; }
+  if(stateMonth > 11){ stateMonth = 0; stateYear += 1; }
   renderCalendar();
 }
 
@@ -81,34 +83,31 @@ async function renderCalendar(){
   monthYear.innerText = `${stateYear} 年 ${stateMonth+1} 月`;
   calendarGrid.innerHTML = '';
 
-  const firstOffset = new Date(stateYear,stateMonth,1).getDay();
-  const totalDays = new Date(stateYear,stateMonth+1,0).getDate();
+  const firstOffset = new Date(stateYear, stateMonth, 1).getDay();
+  const totalDays = new Date(stateYear, stateMonth+1, 0).getDate();
 
-  // 空白格
   for(let i=0;i<firstOffset;i++){
-    const blank = document.createElement('div');
-    blank.className='empty';
+    const blank = document.createElement('div'); blank.className='empty';
     calendarGrid.appendChild(blank);
   }
 
-  // 取得當月資料
-  const docsSnap = await db.collection('entries').get();
+  let docsSnap = await db.collection('entries').get();
   const map = {};
-  docsSnap.forEach(doc=>{ map[doc.id]=doc.data().foods||[]; });
+  docsSnap.forEach(doc => { map[doc.id] = doc.data().foods || []; });
 
-  for(let d=1;d<=totalDays;d++){
+  for(let d=1; d<= totalDays; d++){
     const cell = document.createElement('div');
     const dateStr = formatDateStr(stateYear,stateMonth+1,d);
-    const dateNum = document.createElement('div');
-    dateNum.className='date-num'; dateNum.innerText=d;
+
+    const dateNum = document.createElement('div'); dateNum.className='date-num'; dateNum.innerText = d;
     cell.appendChild(dateNum);
 
-    if(map[dateStr] && map[dateStr].length){
+    if(map[dateStr] && map[dateStr].length>0){
       map[dateStr].forEach(item=>{
         const span = document.createElement('span');
-        span.className='food-list-bullet';
-        span.innerText = '• ' + (item.allergy ? item.name+' ▲' : item.name);
-        if(item.allergy) span.style.color='#d0443a';
+        span.className = 'food-list-bullet';
+        span.innerText = '• ' + (item.allergy ? (item.name + ' ▲') : item.name);
+        if(item.allergy) span.style.color='#D0443A';
         cell.appendChild(span);
       });
     }
@@ -118,56 +117,62 @@ async function renderCalendar(){
   }
 }
 
-// 打開詳細頁
+// 詳細頁
 async function openDetail(dateStr){
   currentDetailDate = dateStr;
   detailDateEl.innerText = dateStr;
   foodInput.value=''; allergyCheck.checked=false;
   showPage(detailPage);
 
+  if(currentDetailUnsub) currentDetailUnsub(); currentDetailUnsub=null;
+
   const docRef = db.collection('entries').doc(dateStr);
-  const snap = await docRef.get();
-  foodList.innerHTML='';
+  currentDetailUnsub = docRef.onSnapshot((snap)=>{
+    foodList.innerHTML='';
+    if(snap.exists){
+      const items = snap.data().foods || [];
+      if(items.length===0){
+        const p=document.createElement('p'); p.className='small-muted'; p.innerText='今日尚無紀錄';
+        foodList.appendChild(p);
+      } else {
+        items.forEach(item=>{
+          const li=document.createElement('li');
+          const left=document.createElement('div'); left.className='food-item-left';
+          const nameSpan=document.createElement('span'); nameSpan.className='food-name';
+          nameSpan.innerText=item.name;
+          if(item.allergy) nameSpan.classList.add('allergy');
+          left.appendChild(nameSpan); li.appendChild(left);
 
-  if(snap.exists && snap.data().foods.length){
-    snap.data().foods.forEach(item=>{
-      const li = document.createElement('li');
-      const left = document.createElement('div'); left.className='food-item-left';
-      const nameSpan = document.createElement('span'); nameSpan.className='food-name';
-      nameSpan.innerText = item.name;
-      if(item.allergy) nameSpan.classList.add('allergy');
-      left.appendChild(nameSpan); li.appendChild(left);
-
-      const actions = document.createElement('div'); actions.className='food-actions';
-      const delBtn = document.createElement('button'); delBtn.innerText='刪除';
-      delBtn.addEventListener('click', async ev=>{
-        ev.stopPropagation();
-        if(!confirm('確定刪除此筆紀錄？')) return;
-        const newItems = snap.data().foods.filter(x=>x.id!==item.id);
-        await docRef.set({foods:newItems});
-        openDetail(currentDetailDate);
-      });
-      actions.appendChild(delBtn); li.appendChild(actions);
-      foodList.appendChild(li);
-    });
-  } else {
-    const p=document.createElement('p'); p.className='small-muted'; p.innerText='今日尚無紀錄';
-    foodList.appendChild(p);
-  }
+          const actions=document.createElement('div'); actions.className='food-actions';
+          const delBtn=document.createElement('button'); delBtn.innerText='刪除';
+          delBtn.addEventListener('click', async (ev)=>{
+            ev.stopPropagation();
+            if(!confirm('確定刪除此筆紀錄？')) return;
+            const newItems = (snap.data().foods || []).filter(x=>x.id!==item.id);
+            await docRef.set({ foods:newItems });
+          });
+          actions.appendChild(delBtn); li.appendChild(actions);
+          foodList.appendChild(li);
+        });
+      }
+    } else {
+      const p=document.createElement('p'); p.className='small-muted'; p.innerText='今日尚無紀錄';
+      foodList.appendChild(p);
+    }
+  });
 }
 
 // 新增副食品
 addFoodBtn.addEventListener('click', async ()=>{
   const name = (foodInput.value||'').trim();
   if(!name) return alert('請輸入食物名稱');
-  const allergy = allergyCheck.checked;
+  const allergy = !!allergyCheck.checked;
   const docRef = db.collection('entries').doc(currentDetailDate);
   const snap = await docRef.get();
-  const items = snap.exists ? snap.data().foods : [];
-  items.push({id:uid(), name, allergy, createdAt:Date.now()});
-  await docRef.set({foods:items});
+  const items = snap.exists ? (snap.data().foods || []) : [];
+  items.push({ id: uid(), name, allergy, createdAt: Date.now() });
+  await docRef.set({ foods:items });
   foodInput.value=''; allergyCheck.checked=false;
-  openDetail(currentDetailDate);
 });
 
 // 清空
@@ -175,13 +180,11 @@ clearInputBtn.addEventListener('click', ()=>{
   foodInput.value=''; allergyCheck.checked=false;
 });
 
-// 回日曆
-// back 按鈕
-backBtn.addEventListener('click', ()=> { 
-  showPage(calendarPage); 
-  renderCalendar();  // 回上頁時重新渲染日曆，立即顯示最新副食品
-});
+// 返回日曆頁
+backBtn.addEventListener('click', ()=> showPage(calendarPage));
 
+// uid helper
+function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-// 初始頁面
+// 初始
 showPage(loginPage);
