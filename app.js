@@ -1,305 +1,156 @@
-// app.js (module)
-// 注意：請到 Firebase 控制台 > 專案設定 複製 web app 的 config 填入下方 firebaseConfig
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
-import {
-  getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query
-} from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-/* -------------------------
-  在這裡放你的 firebaseConfig
-  範例:
+/* ---------------- Firebase 初始化 ---------------- */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXX",
-  appId: "1:XXX:web:XXX"
+  apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
+  authDomain: "babyfoodapp-3422a.firebaseapp.com",
+  projectId: "babyfoodapp-3422a",
+  storageBucket: "babyfoodapp-3422a.firebasestorage.app",
+  messagingSenderId: "40274639672",
+  appId: "1:40274639672:web:fba3f7b56a558b24e51fcd",
+  measurementId: "G-L2815BV781"
 };
---------------------------*/
-const firebaseConfig = {
-  // <-- 把這整個物件換成你的 Firebase 設定
-};
-
-if (!firebaseConfig || !firebaseConfig.apiKey) {
-  console.warn("請在 app.js 補上 firebaseConfig（從 Firebase 控制台取得），且啟用 Cloud Firestore。");
-}
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ---- UI references ---- */
-const loginView = document.getElementById('login-view');
-const calendarView = document.getElementById('calendar-view');
-const passwordInput = document.getElementById('password-input');
-const loginBtn = document.getElementById('login-btn');
-const backToLoginBtn = document.getElementById('back-to-login');
+/* ---------------- DOM 元素 ---------------- */
+const loginPage = document.getElementById("loginPage");
+const calendarPage = document.getElementById("calendarPage");
+const infoPage = document.getElementById("infoPage");
 
-const monthLabel = document.getElementById('month-label');
-const prevMonthBtn = document.getElementById('prev-month');
-const nextMonthBtn = document.getElementById('next-month');
-const weekdaysEl = document.getElementById('weekdays');
-const calendarGrid = document.getElementById('calendar-grid');
+const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("passwordInput");
 
-const overlay = document.getElementById('info-overlay');
-const infoDateEl = document.getElementById('info-date');
-const foodsListEl = document.getElementById('foods-list');
-const addFoodBtn = document.getElementById('add-food');
-const saveBtn = document.getElementById('save-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-const closeOverlayBtn = document.getElementById('close-overlay');
+const calendarGrid = document.getElementById("calendarGrid");
+const monthTitle = document.getElementById("monthTitle");
 
-/* ---- state ---- */
-let currentYear = 2025;
-let currentMonth = 11; // 0-based month => 11 means December 2025 (要求預設 2025/12)
-let mealsCache = {}; // { 'YYYY-MM-DD': [{name, allergy}] }
+const prevMonth = document.getElementById("prevMonth");
+const nextMonth = document.getElementById("nextMonth");
 
-/* ---- EVENTS: login ---- */
-loginBtn.addEventListener('click', () => {
-  const val = passwordInput.value.trim();
-  if (val === '0808') {
-    alert('登入成功');
-    goToCalendar();
-  } else {
-    alert('密碼錯誤，請重新輸入');
-    passwordInput.value = '';
-    passwordInput.focus();
-  }
-});
-passwordInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') loginBtn.click();
+const foodInput = document.getElementById("foodInput");
+const allergyCheckbox = document.getElementById("allergyCheckbox");
+const saveBtn = document.getElementById("saveBtn");
+const backBtn = document.getElementById("backBtn");
+
+const infoDateTitle = document.getElementById("infoDateTitle");
+
+/* ---------------- 登入功能 ---------------- */
+loginBtn.addEventListener("click", () => {
+    if (passwordInput.value === "0808") {
+        alert("登入成功");
+        loginPage.classList.add("hidden");
+        calendarPage.classList.remove("hidden");
+        renderCalendar();
+    } else {
+        alert("密碼錯誤，請重新輸入");
+    }
 });
 
-backToLoginBtn.addEventListener('click', () => {
-  // 清除登入欄位
-  passwordInput.value = '';
-  showView('login');
-});
+/* ---------------- 日曆功能 ---------------- */
+let current = new Date();
 
-/* ---- NAVIGATION ---- */
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  if (id === 'login') loginView.classList.add('active');
-  if (id === 'calendar') calendarView.classList.add('active');
-}
+function renderCalendar() {
+    calendarGrid.innerHTML = "";
 
-function goToCalendar() {
-  showView('calendar');
-  renderCalendar();
-  subscribeMeals(); // start listening Firestore
-}
+    const year = current.getFullYear();
+    const month = current.getMonth();
 
-/* ---- Weekdays header (Sun-Sat) ---- */
-const weekdayNames = ['日','一','二','三','四','五','六'];
-function renderWeekdays(){
-  weekdaysEl.innerHTML = '';
-  weekdayNames.forEach(n=>{
-    const div = document.createElement('div');
-    div.textContent = n;
-    weekdaysEl.appendChild(div);
-  });
-}
+    monthTitle.textContent = `${year} / ${month + 1}`;
 
-/* ---- Calendar render ---- */
-function renderCalendar(){
-  renderWeekdays();
-  const firstDay = new Date(currentYear, currentMonth, 1);
-  const lastDay = new Date(currentYear, currentMonth + 1, 0);
-  monthLabel.textContent = `${currentYear} 年 ${currentMonth + 1} 月`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
 
-  // calculate leading blanks (weekday of first day: 0=Sun..6=Sat)
-  const lead = firstDay.getDay();
-  const totalCells = lead + lastDay.getDate();
-  calendarGrid.innerHTML = '';
-
-  for (let i=0; i<lead; i++){
-    const blank = document.createElement('div');
-    blank.className = 'day empty';
-    blank.style.visibility = 'hidden';
-    calendarGrid.appendChild(blank);
-  }
-
-  for (let d=1; d<=lastDay.getDate(); d++){
-    const dateStr = formatDate(currentYear, currentMonth + 1, d); // YYYY-MM-DD
-    const dayEl = document.createElement('div');
-    dayEl.className = 'day';
-    dayEl.dataset.date = dateStr;
-
-    const dateNum = document.createElement('div');
-    dateNum.className = 'date';
-    dateNum.textContent = d;
-    dayEl.appendChild(dateNum);
-
-    const foodsContainer = document.createElement('div');
-    foodsContainer.className = 'foods';
-    const foods = mealsCache[dateStr] || [];
-    foods.slice(0,3).forEach(item=>{
-      const f = document.createElement('div');
-      f.className = 'food-item';
-      if (item.allergy) {
-        f.classList.add('food-allergy');
-        f.innerHTML = `${escapeHtml(item.name)} <span class="food-warning">⚠️</span>`;
-      } else {
-        f.textContent = item.name;
-      }
-      foodsContainer.appendChild(f);
-    });
-    if (foods.length > 3) {
-      const more = document.createElement('div');
-      more.className = 'food-item muted small';
-      more.textContent = `還有 ${foods.length - 3} 項...`;
-      foodsContainer.appendChild(more);
+    for (let i = 0; i < firstDay; i++) {
+        calendarGrid.innerHTML += `<div></div>`;
     }
 
-    dayEl.appendChild(foodsContainer);
+    for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${year}-${month + 1}-${d}`;
+        const cell = document.createElement("div");
+        cell.innerHTML = `<strong>${d}</strong>`;
 
-    // click to open info page
-    dayEl.addEventListener('click', () => openInfo(dateStr));
-    calendarGrid.appendChild(dayEl);
-  }
+        loadDayData(dateStr, cell);
+
+        cell.addEventListener("click", () => openInfoPage(dateStr));
+        calendarGrid.appendChild(cell);
+    }
 }
 
-/* ---- Month navigation ---- */
-prevMonthBtn.addEventListener('click', () => {
-  currentMonth--;
-  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-  renderCalendar();
-});
-nextMonthBtn.addEventListener('click', () => {
-  currentMonth++;
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  renderCalendar();
-});
-
-/* ---- INFO / EDIT overlay ---- */
-let activeDate = null;
-
-function openInfo(dateStr){
-  activeDate = dateStr;
-  infoDateEl.textContent = dateStr;
-  foodsListEl.innerHTML = '';
-  const items = (mealsCache[dateStr] && Array.isArray(mealsCache[dateStr])) ? mealsCache[dateStr] : [];
-  if (items.length === 0) {
-    addFoodRow(); // start with one empty
-  } else {
-    items.forEach(it => addFoodRow(it.name, it.allergy));
-  }
-  overlay.classList.remove('hidden');
-}
-
-function closeInfo(){
-  overlay.classList.add('hidden');
-  activeDate = null;
-}
-
-// create a food row UI
-function addFoodRow(name = '', allergy = false){
-  const row = document.createElement('div');
-  row.className = 'food-row';
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = '食物名稱';
-  input.value = name;
-  row.appendChild(input);
-
-  const label = document.createElement('label');
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.checked = allergy;
-  label.appendChild(checkbox);
-  const span = document.createElement('span');
-  span.textContent = '過敏';
-  label.appendChild(span);
-  row.appendChild(label);
-
-  const removeBtn = document.createElement('button');
-  removeBtn.className = 'remove-food';
-  removeBtn.innerHTML = '🗑';
-  removeBtn.title = '移除該項';
-  removeBtn.addEventListener('click', () => {
-    row.remove();
-  });
-  row.appendChild(removeBtn);
-
-  foodsListEl.appendChild(row);
-}
-
-addFoodBtn.addEventListener('click', ()=> addFoodRow());
-
-saveBtn.addEventListener('click', async () => {
-  if (!activeDate) return;
-  // collect all rows
-  const rows = Array.from(foodsListEl.querySelectorAll('.food-row'));
-  const items = [];
-  rows.forEach(r=>{
-    const name = r.querySelector('input[type="text"]').value.trim();
-    const allergy = r.querySelector('input[type="checkbox"]').checked;
-    if (name) items.push({ name, allergy });
-  });
-  // save to firestore under doc id = activeDate
-  try {
-    const docRef = doc(db, 'meals', activeDate);
-    await setDoc(docRef, { items, updatedAt: new Date().toISOString() });
-    // update local cache immediately
-    mealsCache[activeDate] = items;
+prevMonth.onclick = () => {
+    current.setMonth(current.getMonth() - 1);
     renderCalendar();
-    closeInfo();
-  } catch (err) {
-    console.error(err);
-    alert('儲存失敗，請稍後再試');
-  }
-});
+};
 
-cancelBtn.addEventListener('click', () => {
-  closeInfo();
-});
-closeOverlayBtn.addEventListener('click', () => {
-  closeInfo();
-});
-
-/* ---- Firestore sync ---- */
-let unsubscribe = null;
-function subscribeMeals(){
-  // Observe all docs in 'meals'. 若擔心效能，可改為只監聽當月範圍。
-  if (unsubscribe) return;
-  const q = query(collection(db, 'meals'));
-  unsubscribe = onSnapshot(q, (snapshot) => {
-    snapshot.forEach(docSnap => {
-      const id = docSnap.id;
-      const data = docSnap.data();
-      mealsCache[id] = (data && data.items) ? data.items : [];
-    });
-    // also remove local keys not in snapshot
-    // build set of ids
-    const snapshotIds = new Set(snapshot.docs.map(d=>d.id));
-    Object.keys(mealsCache).forEach(k => { if (!snapshotIds.has(k)) delete mealsCache[k]; });
+nextMonth.onclick = () => {
+    current.setMonth(current.getMonth() + 1);
     renderCalendar();
-  }, err => {
-    console.error('Firestore 監聽錯誤', err);
-  });
+};
+
+/* ---------------- 載入資料到日曆 ---------------- */
+async function loadDayData(dateStr, cell) {
+    const ref = doc(db, "foods", dateStr);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+        const data = snap.data();
+
+        let html = "";
+        data.foods.forEach(f => {
+            html += `<div class="food-item ${f.allergy ? "allergy" : ""}">
+                        ${f.name} ${f.allergy ? "⚠️" : ""}
+                     </div>`;
+        });
+
+        cell.innerHTML += html;
+    }
 }
 
-/* ---- UTIL ---- */
-function formatDate(y,m,d){
-  const mm = m.toString().padStart(2,'0');
-  const dd = d.toString().padStart(2,'0');
-  return `${y}-${mm}-${dd}`;
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, function (m) {
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
-  });
+/* ---------------- 資訊頁 ---------------- */
+let selectedDate = "";
+
+async function openInfoPage(dateStr) {
+    selectedDate = dateStr;
+    infoDateTitle.textContent = `日期：${dateStr}`;
+
+    const ref = doc(db, "foods", dateStr);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+        const data = snap.data();
+        foodInput.value = data.foods.map(f => f.name).join("，");
+        allergyCheckbox.checked = data.foods.some(f => f.allergy);
+    } else {
+        foodInput.value = "";
+        allergyCheckbox.checked = false;
+    }
+
+    calendarPage.classList.add("hidden");
+    infoPage.classList.remove("hidden");
 }
 
-/* ---- initial setup ---- */
-renderWeekdays();
-// UI: hide calendar view initially
-showView('login');
+/* ---------------- 儲存 ---------------- */
+saveBtn.onclick = async () => {
+    const foods = foodInput.value.split("，").map(v => v.trim()).filter(v => v.length > 0);
+    const allergy = allergyCheckbox.checked;
 
-// Ensure clicks outside overlay don't close it inadvertently
-overlay.addEventListener('click', (e)=> {
-  if (e.target === overlay) {
-    // closeInfo();
-  }
-});
+    const foodArr = foods.map(name => ({
+        name,
+        allergy
+    }));
+
+    await setDoc(doc(db, "foods", selectedDate), { foods: foodArr });
+
+    alert("已儲存");
+
+    infoPage.classList.add("hidden");
+    calendarPage.classList.remove("hidden");
+    renderCalendar();
+};
+
+/* ---------------- 回上頁 ---------------- */
+backBtn.onclick = () => {
+    infoPage.classList.add("hidden");
+    calendarPage.classList.remove("hidden");
+};
