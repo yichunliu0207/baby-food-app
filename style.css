@@ -1,238 +1,253 @@
-/* ===== 全局 ===== */
-body {
+/* ======================== 全域 ======================== */
+* {
+  box-sizing: border-box;
   margin: 0;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: #fefcf5;
-  color: #333;
+  padding: 0;
 }
 
-.page {
-  display: none;
-  padding: 20px;
+html, body {
+  width: 100%;
+  min-height: 100%;
+  font-family: "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+  background: #FFFFFF; /* 純白背景 */
+  color: #2A2A2A;
 }
 
-.page.active {
-  display: block;
-}
-
-/* ===== 登入頁 ===== */
+/* ======================== 登入頁 ======================== */
 #loginPage {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
+  padding: 20px;
+}
+
+#loginPage h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  font-weight: bold;
 }
 
 #loginPage input[type="password"] {
-  padding: 12px;
+  width: 90%;
+  max-width: 280px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
   font-size: 16px;
+  border: 1px solid #E0E0E0;
   border-radius: 10px;
-  border: 1px solid #ccc;
-  width: 80%;
-  max-width: 250px;
-  margin-bottom: 10px;
 }
 
 #loginPage button {
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: none;
-  background-color: #a8d5ba;
+  width: 90%;
+  max-width: 280px;
+  padding: 12px;
+  background-color: #FF6F61;
   color: #fff;
   font-weight: bold;
   font-size: 16px;
+  border: none;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.2s;
 }
 
 #loginPage button:hover {
-  background-color: #8bc49f;
-}
-
-.hidden {
-  display: none;
+  background: #e65a4c;
 }
 
 #loginError {
-  color: #d0443a;
-  margin-top: 5px;
+  color: #D0443A;
+  margin-top: 8px;
   font-size: 14px;
 }
 
-/* ===== 日曆頁 ===== */
+/* ======================== 日曆頁 ======================== */
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin: 18px 0 12px;
+  padding: 0 10px;
 }
 
 .calendar-header button {
-  background-color: #ffe4c4;
+  background-color: #FF9E80;
+  color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 8px 12px;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .calendar-header button:hover {
-  background-color: #ffd2a0;
+  background-color: #ff8c61;
 }
 
 #monthYear {
+  font-size: 20px;
   font-weight: bold;
-  font-size: 18px;
+  color: #333;
 }
 
-/* 星期列 */
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-weight: bold;
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-  color: #555;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 6px;
 }
 
-.weekdays div {
-  font-size: 16px;
-}
-
-/* 日曆格子 */
+/* ======================== 日曆格子 ======================== */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-top: 5px;
+  gap: 6px;
 }
 
 .calendar-grid div {
-  min-height: 80px;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-  cursor: pointer;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #F0F0F0;
+  padding: 8px 6px;
+  min-height: 70px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.1s, box-shadow 0.1s;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
-.calendar-grid .empty {
-  background: none;
-  box-shadow: none;
-  cursor: default;
+.calendar-grid div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
-/* 日期編號 */
 .date-num {
-  font-weight: bold;
-  margin-bottom: 4px;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 5px;
+  color: #444;
 }
 
-/* 副食品顯示 */
 .food-list-bullet {
-  font-size: 13px;
-  margin-bottom: 2px;
+  font-size: 12px;
+  margin-top: 3px;
+  color: #555;
 }
 
-.food-list-bullet span {
-  color: #d0443a;
+/* 過敏顯示 */
+.food-list-bullet.allergy {
+  color: #D0443A;
+  font-weight: bold;
 }
 
-/* ===== 詳細頁 ===== */
+/* 空白格 */
+.calendar-grid .empty {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* ======================== 詳細頁 ======================== */
 #detailPage {
-  display: flex;
-  flex-direction: column;
+  padding: 0 12px;
 }
 
 #detailDate {
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
-  font-size: 16px;
+  margin: 12px 0;
+  text-align: center;
+  color: #333;
 }
 
 #foodInput {
+  width: 100%;
   padding: 10px;
+  font-size: 15px;
   border-radius: 10px;
-  border: 1px solid #ccc;
-  margin-bottom: 5px;
-  font-size: 16px;
+  border: 1px solid #DDD;
+  margin-bottom: 8px;
 }
 
-#allergyCheck {
-  margin-right: 5px;
+.checkbox-row {
+  margin-bottom: 10px;
 }
 
 button {
-  cursor: pointer;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin: 5px 0;
+  font-size: 15px;
   font-weight: bold;
-  font-size: 16px;
+  border-radius: 10px;
 }
 
+/* 新增按鈕 */
 #addFoodBtn {
-  background-color: #a8d5ba;
-  color: white;
+  background-color: #FF9E80;
+  color: #fff;
 }
 
 #addFoodBtn:hover {
-  background-color: #8bc49f;
+  background-color: #ff8c61;
 }
 
-#clearInputBtn {
-  background-color: #ffe4c4;
+/* 清空按鈕 */
+#clearInputBtn, #backBtn {
+  background-color: #E0E0E0;
+  color: #555;
 }
 
-#clearInputBtn:hover {
-  background-color: #ffd2a0;
-}
-
-#backBtn {
-  background-color: #c3e0e5;
-}
-
-#backBtn:hover {
-  background-color: #a9d3d7;
+#clearInputBtn:hover, #backBtn:hover {
+  background-color: #CFCFCF;
 }
 
 /* 副食品列表 */
 #foodList li {
   list-style: none;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  background: #FAFAFA;
+  padding: 8px 10px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fafaf5;
-  padding: 6px 10px;
-  border-radius: 10px;
+  border: 1px solid #EFEFEF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-#foodList .allergy {
-  color: #d0443a;
+.food-actions button {
+  background: transparent;
+  color: #D0443A;
+  font-size: 14px;
 }
 
-/* ===== 手機自適應 ===== */
-@media screen and (max-width: 480px) {
-  .calendar-grid div {
-    min-height: 70px;
-    padding: 4px;
+.food-name.allergy {
+  color: #D0443A;
+}
+
+/* ======================== 響應式 ======================== */
+@media (max-width: 640px) {
+  .calendar-header button {
+    padding: 6px 10px;
+    font-size: 16px;
   }
-
   .weekdays div {
+    font-size: 13px;
+  }
+  .date-num {
     font-size: 14px;
   }
-
-  #foodInput {
-    width: 100%;
+  .food-list-bullet {
+    font-size: 11px;
   }
-
-  #loginPage input[type="password"] {
-    width: 90%;
+  #foodInput {
+    font-size: 14px;
   }
 }
