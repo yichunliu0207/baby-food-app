@@ -1,12 +1,12 @@
 // app.js - Firebase (compat) implementation
 // uses global firebase from firebase-app-compat & firebase-firestore-compat
 
-// ----- Firebase init -----
+// ----- Firebase init (已修正：storageBucket domain 正確) -----
 const firebaseConfig = {
   apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
   authDomain: "babyfoodapp-3422a.firebaseapp.com",
   projectId: "babyfoodapp-3422a",
-  storageBucket: "babyfoodapp-3422a.firebasestorage.app",
+  storageBucket: "babyfoodapp-3422a.appspot.com",
   messagingSenderId: "40274639672",
   appId: "1:40274639672:web:fba3f7b56a558b24e51fcd",
   measurementId: "G-L2815BV781"
@@ -83,7 +83,7 @@ function changeMonth(delta){
   renderCalendar();
 }
 
-// render calendar: fetch all entries in collection then filter by month (simple approach)
+// render calendar: fetch all entries in collection then filter by month
 async function renderCalendar(){
   monthYear.innerText = `${stateYear} 年 ${stateMonth+1} 月`;
   calendarGrid.innerHTML = '';
@@ -108,7 +108,9 @@ async function renderCalendar(){
     const cell = document.createElement('div');
     const dateStr = formatDateStr(stateYear, stateMonth+1, d);
 
-    const dateNum = document.createElement('div'); dateNum.className='date-num'; dateNum.innerText = d;
+    const dateNum = document.createElement('div'); 
+    dateNum.className='date-num'; 
+    dateNum.innerText = d;
     cell.appendChild(dateNum);
 
     if(map[dateStr] && map[dateStr].length > 0){
@@ -126,15 +128,16 @@ async function renderCalendar(){
   }
 }
 
-// detail
+// detail page
 async function openDetail(dateStr){
   currentDetailDate = dateStr;
   detailDateEl.innerText = dateStr;
-  foodInput.value = ''; allergyCheck.checked = false;
+  foodInput.value = ''; 
+  allergyCheck.checked = false;
   showPage(detailPage);
 
-  // unsubscribe previous listener
-  if(currentDetailUnsub) currentDetailUnsub(); currentDetailUnsub = null;
+  if(currentDetailUnsub) currentDetailUnsub(); 
+  currentDetailUnsub = null;
 
   const docRef = db.collection('entries').doc(dateStr);
   currentDetailUnsub = docRef.onSnapshot((snap) => {
@@ -142,33 +145,44 @@ async function openDetail(dateStr){
     if(snap.exists){
       const items = snap.data().foods || [];
       if(items.length === 0){
-        const p = document.createElement('p'); p.className='small-muted'; p.innerText = '今日尚無紀錄';
+        const p = document.createElement('p'); 
+        p.className='small-muted'; 
+        p.innerText = '今日尚無紀錄';
         foodList.appendChild(p);
       } else {
         items.forEach(item => {
           const li = document.createElement('li');
-          const left = document.createElement('div'); left.className='food-item-left';
-          const nameSpan = document.createElement('span'); nameSpan.className='food-name';
+          const left = document.createElement('div'); 
+          left.className='food-item-left';
+          
+          const nameSpan = document.createElement('span'); 
+          nameSpan.className='food-name';
           nameSpan.innerText = item.name;
           if(item.allergy) nameSpan.classList.add('allergy');
           left.appendChild(nameSpan);
           li.appendChild(left);
 
-          const actions = document.createElement('div'); actions.className='food-actions';
-          const delBtn = document.createElement('button'); delBtn.innerText='刪除';
+          const actions = document.createElement('div'); 
+          actions.className='food-actions';
+          const delBtn = document.createElement('button'); 
+          delBtn.innerText='刪除';
+          
           delBtn.addEventListener('click', async (ev)=>{
             ev.stopPropagation();
             if(!confirm('確定刪除此筆紀錄？')) return;
             const newItems = (snap.data().foods || []).filter(x => x.id !== item.id);
             await docRef.set({ foods: newItems });
           });
+
           actions.appendChild(delBtn);
           li.appendChild(actions);
           foodList.appendChild(li);
         });
       }
     } else {
-      const p = document.createElement('p'); p.className='small-muted'; p.innerText = '今日尚無紀錄';
+      const p = document.createElement('p'); 
+      p.className='small-muted'; 
+      p.innerText = '今日尚無紀錄';
       foodList.appendChild(p);
     }
   });
@@ -178,25 +192,34 @@ async function openDetail(dateStr){
 addFoodBtn.addEventListener('click', async ()=>{
   const name = (foodInput.value || '').trim();
   if(!name) return alert('請輸入食物名稱');
+
   const allergy = !!allergyCheck.checked;
   const docRef = db.collection('entries').doc(currentDetailDate);
   const snap = await docRef.get();
   const items = snap.exists ? (snap.data().foods || []) : [];
-  items.push({ id: uid(), name, allergy, createdAt: Date.now() });
+
+  items.push({ 
+    id: uid(), 
+    name, 
+    allergy, 
+    createdAt: Date.now() 
+  });
+
   await docRef.set({ foods: items });
-  foodInput.value = ''; allergyCheck.checked = false;
+  foodInput.value = ''; 
+  allergyCheck.checked = false;
 });
 
 // clear
 clearInputBtn.addEventListener('click', ()=>{
-  foodInput.value = ''; allergyCheck.checked = false;
+  foodInput.value = ''; 
+  allergyCheck.checked = false;
 });
 
 // back
-backBtn.addEventListener('click', ()=> { showPage(calendarPage); });
+backBtn.addEventListener('click', ()=> { 
+  showPage(calendarPage); 
+});
 
-// uid helper
-function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-
-// initial: show login page
+// initial
 showPage(loginPage);
