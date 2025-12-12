@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>寶寶副食品日誌</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- LOGIN VIEW -->
+  <main id="login-view" class="view active">
+    <div class="card login-card">
+      <h1 class="brand">寶寶副食品日誌</h1>
+      <p class="muted">請輸入密碼以繼續</p>
+      <input id="password-input" type="password" placeholder="請輸入密碼" autocomplete="off" />
+      <button id="login-btn" class="btn">登入</button>
+    </div>
+    <footer class="small muted">Design: 白色 ins 風 • Responsive</footer>
+  </main>
+
+  <!-- CALENDAR VIEW -->
+  <section id="calendar-view" class="view">
+    <header class="topbar">
+      <button id="back-to-login" class="link small">登出</button>
+      <div class="title">
+        <button id="prev-month" class="nav-btn">◀</button>
+        <h2 id="month-label">2025 年 12 月</h2>
+        <button id="next-month" class="nav-btn">▶</button>
+      </div>
+      <div style="width:48px"></div>
+    </header>
+
+    <div class="container">
+      <div class="calendar-card">
+        <div class="weekdays" id="weekdays">
+          <!-- 星期標頭會在 JS 中渲染 -->
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+          <!-- 日期格子由 JS 生成 -->
+        </div>
+      </div>
+    </div>
+    <footer class="small muted">點擊日期以編輯 / 檢視當日副食品</footer>
+  </section>
+
+  <!-- INFO / EDIT VIEW (overlay) -->
+  <div id="info-overlay" class="overlay hidden">
+    <div class="overlay-card">
+      <header class="overlay-head">
+        <h3 id="info-date">2025-12-01</h3>
+        <button id="close-overlay" class="btn small">回上頁</button>
+      </header>
+      <main class="overlay-body">
+        <div id="foods-list">
+          <!-- 動態食品項目 -->
+        </div>
+        <div class="form-actions">
+          <button id="add-food" class="btn outline">＋ 新增一項</button>
+        </div>
+      </main>
+      <footer class="overlay-foot">
+        <button id="save-btn" class="btn primary">儲存</button>
+        <button id="cancel-btn" class="btn">取消</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Firebase & App -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
