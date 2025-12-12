@@ -21,14 +21,27 @@
   </div>
 
   <!-- 日曆頁 -->
-  <div id="calendarPage" class="page">
-    <div class="calendar-header">
-      <button id="prevMonth">&lt;</button>
-      <h2 id="monthYear"></h2>
-      <button id="nextMonth">&gt;</button>
-    </div>
-    <div id="calendarGrid" class="calendar-grid"></div>
+ <div id="calendarPage" class="page">
+  <div class="calendar-header">
+    <button id="prevMonth">◀</button>
+    <span id="monthYear"></span>
+    <button id="nextMonth">▶</button>
   </div>
+
+  <!-- 星期列 -->
+  <div class="weekdays">
+    <div>日</div>
+    <div>一</div>
+    <div>二</div>
+    <div>三</div>
+    <div>四</div>
+    <div>五</div>
+    <div>六</div>
+  </div>
+
+  <div id="calendarGrid" class="calendar-grid"></div>
+</div>
+
 
   <!-- 詳細頁 -->
   <div id="detailPage" class="page">
