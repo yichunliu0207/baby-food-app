@@ -1,19 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-/* ---------------- Firebase 初始化 ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
-  authDomain: "babyfoodapp-3422a.firebaseapp.com",
-  projectId: "babyfoodapp-3422a",
-  storageBucket: "babyfoodapp-3422a.firebasestorage.app",
-  messagingSenderId: "40274639672",
-  appId: "1:40274639672:web:fba3f7b56a558b24e51fcd",
-  measurementId: "G-L2815BV781"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+/* Firestore initialized in index.html */
+const db = window.db;
 
 /* ---------------- DOM 元素 ---------------- */
 const loginPage = document.getElementById("loginPage");
@@ -72,8 +60,8 @@ function renderCalendar() {
         cell.innerHTML = `<strong>${d}</strong>`;
 
         loadDayData(dateStr, cell);
-
         cell.addEventListener("click", () => openInfoPage(dateStr));
+
         calendarGrid.appendChild(cell);
     }
 }
@@ -132,7 +120,11 @@ async function openInfoPage(dateStr) {
 
 /* ---------------- 儲存 ---------------- */
 saveBtn.onclick = async () => {
-    const foods = foodInput.value.split("，").map(v => v.trim()).filter(v => v.length > 0);
+    const foods = foodInput.value
+        .split("，")
+        .map(v => v.trim())
+        .filter(v => v.length > 0);
+
     const allergy = allergyCheckbox.checked;
 
     const foodArr = foods.map(name => ({
