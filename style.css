@@ -1,232 +1,77 @@
-/* ======================== 基本樣式 ======================== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+:root{
+  --bg:#fff;
+  --muted:#8b8376;
+  --accent:#f4b183;
+  --card-bg:#ffffff;
+  --shadow:0 8px 30px rgba(28,28,30,0.06);
+  --radius:14px;
 }
-
-body {
-  background-color: #fff;
-  color: #333;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: linear-gradient(180deg,#fffaf5 0%, #ffffff 100%);
+  font-family: "Noto Sans TC", -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:#222;
+  -webkit-font-smoothing:antialiased;
+  padding:18px;
 }
-
-/* ======================== 公用元件 ======================== */
-.page {
-  display: none;
-  width: 100%;
-  max-width: 500px;
+.plant{
+  position:fixed; top:18px; right:20px; font-size:22px; opacity:0.6; pointer-events:none;
 }
-
-.page.active {
-  display: block;
+.page{display:none}
+.page.active{display:block}
+.card{
+  background:var(--card-bg);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
 }
-
-.card {
-  background-color: #fff;
-  padding: 15px 20px;
-  border-radius: 15px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-  margin-bottom: 20px;
+.login-card{
+  max-width:420px; margin:48px auto; text-align:center;
 }
-
-.title {
-  font-size: 1.8em;
-  margin-bottom: 10px;
-  text-align: center;
+.title{margin:6px 0 4px;font-size:22px;color:#5a4d3a}
+.subtitle{margin:0 0 12px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:12px}
+input[type="password"], input[type="text"]{
+  width:100%; padding:12px; border-radius:12px; border:1px solid #eee; font-size:15px; margin:8px 0; background:#fff;
 }
-
-.subtitle {
-  font-size: 0.9em;
-  color: #666;
-  margin-bottom: 15px;
-  text-align: center;
+.btn{
+  display:inline-block; width:100%; padding:12px; border-radius:12px; border:0; background:var(--accent); color:#fff; font-weight:600; font-size:16px; cursor:pointer; box-shadow:0 8px 18px rgba(244,177,131,0.12);
 }
-
-.btn {
-  background-color: #44c8f5;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 0;
-  width: 100%;
-  margin-top: 10px;
-  font-size: 1em;
-  cursor: pointer;
+.ghost-btn{ background:transparent; border:1px solid #eee; color:var(--muted); padding:8px 12px; border-radius:10px; cursor:pointer;}
+.icon-btn{ background:transparent; border:0; font-size:22px; color:#5a4d3a; padding:8px 12px; cursor:pointer;}
+.txt-error{color:#ef4444;margin-top:6px}
+.hidden{display:none}
+.calendar-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:900px; margin:0 auto 12px;}
+.month-year{font-weight:700;font-size:18px}
+.small-muted{font-size:13px;color:var(--muted)}
+.calendar-card{ max-width:900px; margin:0 auto; padding:10px;}
+.weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:6px; color:var(--muted); font-weight:600; font-size:13px}
+.calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+.calendar-grid > div{
+  min-height:86px; background:#fff; border-radius:12px; padding:8px; border:1px solid #f0eae1; box-shadow:0 2px 8px rgba(18,18,20,0.03); display:flex; flex-direction:column; justify-content:flex-start; cursor:pointer; overflow:hidden;
 }
-
-.btn:hover {
-  background-color: #36a8d4;
+.calendar-grid > div.empty{ background:transparent; cursor:default; box-shadow:none; border:0; }
+.date-num{ font-weight:700; color:#5a4d3a; margin-bottom:6px;}
+.food-list-bullet{ font-size:12px; color:#5a4d3a; display:block; line-height:1.15; margin-bottom:3px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.detail-card{ max-width:640px; margin:0 auto }
+.detail-top{ display:flex; align-items:center; gap:12px}
+.detail-date{ flex:1; text-align:center; margin:6px 0; font-weight:700}
+.form-row{ margin-top:12px}
+.checkbox-row label{ font-size:15px; color:var(--muted)}
+.actions-row{ display:flex; gap:8px}
+.divider{ height:1px; background:#f0e8df; border-radius:4px; margin:18px 0}
+.food-list{ list-style:none; padding:0; margin:0}
+.food-list li{
+  display:flex; align-items:center; justify-content:space-between; padding:8px; border-radius:10px; border:1px solid #f3ede4; margin-bottom:8px; background:#fff; font-size:14px;
 }
-
-.ghost-btn {
-  background: none;
-  border: none;
-  color: #44c8f5;
-  cursor: pointer;
-  font-size: 0.95em;
-  padding: 5px 0;
-}
-
-.txt-error {
-  color: #d0443a;
-  margin-top: 5px;
-  text-align: center;
-}
-
-.hidden {
-  display: none;
-}
-
-.small-muted {
-  font-size: 0.75em;
-  color: #999;
-}
-
-/* ======================== LOGIN ======================== */
-.login-card input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-/* ======================== CALENDAR ======================== */
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-}
-
-.month-year {
-  font-weight: bold;
-  text-align: center;
-}
-
-.weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-top: 10px;
-  font-weight: bold;
-  text-align: center;
-  color: #555;
-}
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-top: 5px;
-  gap: 5px;
-}
-
-.calendar-grid div {
-  min-height: 60px;
-  border-radius: 10px;
-  padding: 5px;
-  background-color: #f8f8f8;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  cursor: pointer;
-}
-
-.calendar-grid div.empty {
-  background: transparent;
-  cursor: default;
-}
-
-.date-num {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.food-list-bullet {
-  font-size: 0.75em;
-  margin-left: 3px;
-  margin-top: 2px;
-}
-
-/* ======================== DETAIL ======================== */
-.detail-card .form-row {
-  margin-bottom: 10px;
-}
-
-.detail-card label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.detail-card input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.checkbox-row {
-  display: flex;
-  align-items: center;
-}
-
-.actions-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.divider {
-  height: 1px;
-  background-color: #eee;
-  margin: 10px 0;
-}
-
-.food-list {
-  list-style: none;
-}
-
-.food-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.food-item-left {
-  display: flex;
-  align-items: center;
-}
-
-.food-name.allergy {
-  color: #d0443a;
-}
-
-.food-actions button {
-  border: none;
-  background: none;
-  color: #d0443a;
-  cursor: pointer;
-}
-
-/* ======================== 植物裝飾 ======================== */
-.plant {
-  position: fixed;
-  bottom: 5px;
-  right: 5px;
-  font-size: 2em;
-  pointer-events: none;
+.food-item-left{ display:flex; align-items:center; gap:8px}
+.food-name{ font-weight:600; color:#5a4d3a}
+.food-name.allergy{ color:#d0443a}
+.food-actions button{ background:transparent; border:0; color:var(--muted); cursor:pointer; padding:6px; font-size:14px}
+@media (max-width:640px){
+  body{ padding:12px }
+  .calendar-grid > div{ min-height:86px; padding:6px }
+  .login-card{ margin:32px 12px}
 }
