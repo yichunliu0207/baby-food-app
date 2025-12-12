@@ -1,8 +1,4 @@
-// Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-// Firebase config（你提供的設定）
+// Firebase init
 const firebaseConfig = {
   apiKey: "AIzaSyCaROQQYrURslG8NRbuxT2-tQIXxMLQ-W0",
   authDomain: "babyfoodapp-3422a.firebaseapp.com",
@@ -12,144 +8,175 @@ const firebaseConfig = {
   appId: "1:40274639672:web:fba3f7b56a558b24e51fcd",
   measurementId: "G-L2815BV781"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// Init firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// DOM
+const loginPage = document.getElementById('loginPage');
+const calendarPage = document.getElementById('calendarPage');
+const detailPage = document.getElementById('detailPage');
 
-// ------------------------
-// 1. 登入邏輯
-// ------------------------
-document.getElementById("loginBtn").addEventListener("click", function () {
-  const input = document.getElementById("password").value;
-  if (input === "0808") {
-    alert("登入成功");
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("calendarPage").style.display = "block";
-    loadCalendar();
-  } else {
-    alert("密碼錯誤，請重新輸入");
-  }
-});
+const loginPassword = document.getElementById('loginPassword');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
 
-// ------------------------
-// 2. 產生日曆
-// ------------------------
-let current = new Date();
-let selectedDate = null;
+const prevMonth = document.getElementById('prevMonth');
+const nextMonth = document.getElementById('nextMonth');
+const monthYear = document.getElementById('monthYear');
+const calendarGrid = document.getElementById('calendarGrid');
 
-function loadCalendar() {
-  const year = current.getFullYear();
-  const month = current.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const days = new Date(year, month + 1, 0).getDate();
+const detailDateEl = document.getElementById('detailDate');
+const foodInput = document.getElementById('foodInput');
+const allergyCheck = document.getElementById('allergyCheck');
+const addFoodBtn = document.getElementById('addFoodBtn');
+const clearInputBtn = document.getElementById('clearInputBtn');
+const foodList = document.getElementById('foodList');
+const backBtn = document.getElementById('backBtn');
 
-  document.getElementById("monthLabel").textContent = `${year} / ${month + 1}`;
+const FIXED_PASSWORD = '0808';
+let stateYear = 2025;
+let stateMonth = 11;
+let currentDetailDate = '';
+let currentDetailUnsub = null;
 
-  const calendar = document.getElementById("calendarDays");
-  calendar.innerHTML = "";
-
-  for (let i = 0; i < firstDay; i++) {
-    calendar.innerHTML += `<div class="empty"></div>`;
-  }
-
-  for (let d = 1; d <= days; d++) {
-    const fullDate = `${year}-${month + 1}-${d}`;
-
-    const dayBox = document.createElement("div");
-    dayBox.classList.add("day");
-    dayBox.innerHTML = `
-      <span class="dateNum">${d}</span>
-      <div class="foodList" id="food-${fullDate}"></div>
-    `;
-
-    dayBox.addEventListener("click", () => openEditor(fullDate));
-    calendar.appendChild(dayBox);
-
-    loadDailyData(fullDate);
-  }
+// Show page
+function showPage(pageEl){
+  [loginPage, calendarPage, detailPage].forEach(p => p.classList.remove('active'));
+  pageEl.classList.add('active');
 }
 
-// 上 / 下 月
-document.getElementById("prevMonth").addEventListener("click", () => {
-  current.setMonth(current.getMonth() - 1);
-  loadCalendar();
-});
-document.getElementById("nextMonth").addEventListener("click", () => {
-  current.setMonth(current.getMonth() + 1);
-  loadCalendar();
-});
-
-// ------------------------
-// 3. 開啟內頁編輯
-// ------------------------
-async function openEditor(dateKey) {
-  selectedDate = dateKey;
-
-  document.getElementById("calendarPage").style.display = "none";
-  document.getElementById("editPage").style.display = "block";
-  document.getElementById("editDateTitle").textContent = dateKey;
-
-  // 讀取 Firestore
-  const ref = doc(db, "babyFood", dateKey);
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    document.getElementById("foodInput").value = snap.data().food || "";
-    document.getElementById("allergyCheck").checked = snap.data().allergy || false;
-  } else {
-    document.getElementById("foodInput").value = "";
-    document.getElementById("allergyCheck").checked = false;
-  }
+// Format date
+function formatDateStr(y,m,d){
+  return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
 
-// ------------------------
-// 4. 儲存到 Firestore
-// ------------------------
-document.getElementById("saveBtn").addEventListener("click", async () => {
-  const food = document.getElementById("foodInput").value.trim();
-  const allergy = document.getElementById("allergyCheck").checked;
+// UID helper
+function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-  if (!selectedDate) return;
-
-  await setDoc(doc(db, "babyFood", selectedDate), {
-    food: food,
-    allergy: allergy
-  });
-
-  alert("已儲存");
-
-  document.getElementById("editPage").style.display = "none";
-  document.getElementById("calendarPage").style.display = "block";
-
-  loadCalendar();
+// Login
+loginBtn.addEventListener('click', ()=>{
+  const pw = (loginPassword.value||'').trim();
+  if(pw === FIXED_PASSWORD){
+    loginError.classList.add('hidden');
+    alert('登入成功');
+    showPage(calendarPage);
+    renderCalendar();
+  } else {
+    loginError.classList.remove('hidden');
+  }
 });
+loginPassword.addEventListener('keydown', e => { if(e.key==='Enter') loginBtn.click(); });
 
-// 返回
-document.getElementById("backBtn").addEventListener("click", () => {
-  document.getElementById("editPage").style.display = "none";
-  document.getElementById("calendarPage").style.display = "block";
-});
+// Calendar navigation
+prevMonth.addEventListener('click', ()=> changeMonth(-1));
+nextMonth.addEventListener('click', ()=> changeMonth(1));
+function changeMonth(delta){
+  stateMonth += delta;
+  if(stateMonth<0){ stateMonth=11; stateYear-=1; }
+  if(stateMonth>11){ stateMonth=0; stateYear+=1; }
+  renderCalendar();
+}
 
-// ------------------------
-// 5. 讀取每日資料並顯示在日曆中
-// ------------------------
-async function loadDailyData(dateKey) {
-  const ref = doc(db, "babyFood", dateKey);
-  const snap = await getDoc(ref);
+// Render calendar
+async function renderCalendar(){
+  monthYear.innerText = `${stateYear} 年 ${stateMonth+1} 月`;
+  calendarGrid.innerHTML = '';
+  const firstOffset = new Date(stateYear,stateMonth,1).getDay();
+  const totalDays = new Date(stateYear,stateMonth+1,0).getDate();
 
-  const div = document.getElementById(`food-${dateKey}`);
-  if (!div) return;
+  for(let i=0;i<firstOffset;i++){
+    const blank = document.createElement('div'); blank.className='empty'; calendarGrid.appendChild(blank);
+  }
 
-  if (snap.exists()) {
-    const data = snap.data();
-    let label = data.food;
+  const docsSnap = await db.collection('entries').get();
+  const map = {};
+  docsSnap.forEach(doc => { map[doc.id] = doc.data().foods || []; });
 
-    if (data.allergy) {
-      label = `<span style="color:red;">${label} ⚠️</span>`;
+  for(let d=1; d<=totalDays; d++){
+    const cell = document.createElement('div');
+    const dateStr = formatDateStr(stateYear,stateMonth+1,d);
+    const dateNum = document.createElement('div'); dateNum.className='date-num'; dateNum.innerText = d;
+    cell.appendChild(dateNum);
+
+    if(map[dateStr] && map[dateStr].length){
+      map[dateStr].forEach(item => {
+        const span = document.createElement('span');
+        span.className='food-list-bullet';
+        span.innerText = '• '+ (item.allergy ? (item.name+' ▲') : item.name);
+        if(item.allergy) span.style.color='#d0443a';
+        cell.appendChild(span);
+      });
     }
-    div.innerHTML = label;
-  } else {
-    div.innerHTML = "";
+
+    cell.addEventListener('click', ()=> openDetail(dateStr));
+    calendarGrid.appendChild(cell);
   }
 }
+
+// Open detail
+async function openDetail(dateStr){
+  currentDetailDate = dateStr;
+  detailDateEl.innerText = dateStr;
+  foodInput.value=''; allergyCheck.checked=false;
+  showPage(detailPage);
+  if(currentDetailUnsub) currentDetailUnsub(); currentDetailUnsub=null;
+
+  const docRef = db.collection('entries').doc(dateStr);
+  currentDetailUnsub = docRef.onSnapshot(snap=>{
+    foodList.innerHTML='';
+    if(snap.exists){
+      const items = snap.data().foods || [];
+      if(items.length===0){
+        const p = document.createElement('p'); p.className='small-muted'; p.innerText='今日尚無紀錄';
+        foodList.appendChild(p);
+      } else {
+        items.forEach(item=>{
+          const li=document.createElement('li');
+          const left=document.createElement('div'); left.className='food-item-left';
+          const nameSpan=document.createElement('span'); nameSpan.className='food-name';
+          nameSpan.innerText=item.name;
+          if(item.allergy) nameSpan.classList.add('allergy');
+          left.appendChild(nameSpan); li.appendChild(left);
+
+          const actions=document.createElement('div'); actions.className='food-actions';
+          const delBtn=document.createElement('button'); delBtn.innerText='刪除';
+          delBtn.addEventListener('click', async ev=>{
+            ev.stopPropagation();
+            if(!confirm('確定刪除此筆紀錄？')) return;
+            const newItems=(snap.data().foods||[]).filter(x=>x.id!==item.id);
+            await docRef.set({foods:newItems});
+          });
+          actions.appendChild(delBtn); li.appendChild(actions);
+          foodList.appendChild(li);
+        });
+      }
+    } else {
+      const p=document.createElement('p'); p.className='small-muted'; p.innerText='今日尚無紀錄';
+      foodList.appendChild(p);
+    }
+  });
+}
+
+// Add food
+addFoodBtn.addEventListener('click', async ()=>{
+  const name=(foodInput.value||'').trim();
+  if(!name) return alert('請輸入食物名稱');
+  const allergy=!!allergyCheck.checked;
+  const docRef=db.collection('entries').doc(currentDetailDate);
+  const snap=await docRef.get();
+  const items=snap.exists ? (snap.data().foods||[]) : [];
+  items.push({id:uid(), name, allergy, createdAt:Date.now()});
+  await docRef.set({foods:items});
+  foodInput.value=''; allergyCheck.checked=false;
+});
+
+// Clear input
+clearInputBtn.addEventListener('click', ()=>{
+  foodInput.value=''; allergyCheck.checked=false;
+});
+
+// Back
+backBtn.addEventListener('click', ()=> showPage(calendarPage));
+
+// Initial page
+showPage(loginPage);
