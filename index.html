@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>寶寶副食品日誌</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
@@ -26,7 +27,8 @@
       <button id="nextMonth">&gt;</button>
     </div>
     <div class="weekdays">
-      <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      <div>日</div><div>一</div><div>二</div><div>三</div>
+      <div>四</div><div>五</div><div>六</div>
     </div>
     <div id="calendarGrid" class="calendar-grid"></div>
   </div>
@@ -35,9 +37,7 @@
   <div id="detailPage" class="page">
     <h2 id="detailDate"></h2>
     <input type="text" id="foodInput" placeholder="輸入副食品名稱">
-    <div class="checkbox-row">
-      <label><input type="checkbox" id="allergyCheck"> 過敏</label>
-    </div>
+    <label><input type="checkbox" id="allergyCheck"> 過敏</label>
     <button id="addFoodBtn">新增到當日</button>
     <button id="clearInputBtn">清空輸入</button>
     <ul id="foodList"></ul>
