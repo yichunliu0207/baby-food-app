@@ -13,6 +13,15 @@ html, body {
   color: #2A2A2A;
 }
 
+/* ======================== 頁面控制 ======================== */
+.page {
+  display: none; /* 預設隱藏所有頁面 */
+}
+
+.page.active {
+  display: block; /* 只有 active 的頁面顯示 */
+}
+
 /* ======================== 登入頁 ======================== */
 #loginPage {
   display: flex;
