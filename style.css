@@ -30,10 +30,9 @@ button {
 }
 
 button:hover {
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
-/* 日曆 */
 .calendar-header {
     display: flex;
     justify-content: space-between;
